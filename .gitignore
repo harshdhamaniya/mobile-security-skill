@@ -1,0 +1,17 @@
+# Engagement working directories created by the skill at run time — these contain
+# real target artifacts, extracted secrets, and evidence from an actual audit.
+# Never commit an engagement's output to this (or any) repo.
+engagement-*/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Common decompile/extraction scratch output if run inside this repo by mistake
+*.apk
+*.ipa
+*.aab
+/extracted/

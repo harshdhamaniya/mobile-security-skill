@@ -1,0 +1,29 @@
+{
+  "name": "mobile-security-skill",
+  "version": "1.0.0",
+  "description": "Complete mobile application security audit toolkit: an orchestrating Skill plus 18 specialist subagents covering manifest/plist, storage/crypto, taint analysis, WebView/OAuth/deep-links, Android IPC, iOS platform attacks, resilience/anti-tamper, network/backend, supply chain, and business logic. Gated by an adversarial prosecutor-vs-skeptic panel before anything is reported as Confirmed.",
+  "author": {
+    "name": "Harsh Dhamaniya"
+  },
+  "keywords": [
+    "mobile-security",
+    "mobile-pentest",
+    "android",
+    "ios",
+    "appsec",
+    "owasp-masvs",
+    "owasp-mastg",
+    "pentest",
+    "security-audit",
+    "vulnerability-assessment",
+    "red-team",
+    "security-automation",
+    "frida",
+    "apk",
+    "ipa",
+    "claude-code",
+    "claude-skills",
+    "ai-agents"
+  ],
+  "license": "MIT"
+}

@@ -1,0 +1,97 @@
+<svg width="1200" height="360" viewBox="0 0 1200 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mobile Security Skill: Claude Code agents for Android and iOS mobile application security audits">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B1220"/>
+      <stop offset="55%" stop-color="#121A2E"/>
+      <stop offset="100%" stop-color="#1B2740"/>
+    </linearGradient>
+    <linearGradient id="shield" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2DD4BF"/>
+      <stop offset="100%" stop-color="#22C55E"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#D97757"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#FFFFFF" stroke-opacity="0.045" stroke-width="1"/>
+    </pattern>
+    <radialGradient id="glowL" cx="12%" cy="45%" r="50%">
+      <stop offset="0%" stop-color="#2DD4BF" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#2DD4BF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowR" cx="92%" cy="55%" r="45%">
+      <stop offset="0%" stop-color="#D97757" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#D97757" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="360" fill="url(#bg)"/>
+  <rect width="1200" height="360" fill="url(#grid)"/>
+  <rect width="1200" height="360" fill="url(#glowL)"/>
+  <rect width="1200" height="360" fill="url(#glowR)"/>
+
+  <!-- Shield with scan / confirm mark -->
+  <g transform="translate(92,90)">
+    <path d="M100 0 L195 34 V130 C195 185 150 212 100 232 C50 212 5 185 5 130 V34 Z"
+          fill="#0F1A2E" stroke="url(#shield)" stroke-width="4"/>
+    <path d="M100 14 L181 44 V128 C181 175 142 199 100 217 C58 199 19 175 19 128 V44 Z"
+          fill="none" stroke="url(#shield)" stroke-width="1.5" stroke-opacity="0.45"/>
+    <circle cx="86" cy="100" r="34" fill="none" stroke="#E2E8F0" stroke-width="7"/>
+    <line x1="110" y1="124" x2="140" y2="154" stroke="#E2E8F0" stroke-width="9" stroke-linecap="round"/>
+    <path d="M70 100 L83 113 L104 86" fill="none" stroke="url(#shield)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Title block -->
+  <g transform="translate(330,0)">
+    <text x="0" y="112" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="48" font-weight="700" fill="#F8FAFC">Mobile Security Skill</text>
+    <rect x="0" y="140" width="460" height="4" rx="2" fill="url(#accent)"/>
+    <text x="0" y="186" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#B7C3D9">18 Claude Code agents, one Skill, and an adversarial</text>
+    <text x="0" y="218" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#B7C3D9">exploitation panel before anything is called "Confirmed"</text>
+
+    <g font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" font-weight="600">
+      <g transform="translate(0,252)">
+        <rect width="98" height="34" rx="17" fill="#132033" stroke="#2DD4BF" stroke-opacity="0.55"/>
+        <text x="49" y="23" text-anchor="middle" fill="#5EEAD4">Android</text>
+      </g>
+      <g transform="translate(110,252)">
+        <rect width="70" height="34" rx="17" fill="#132033" stroke="#94A3B8" stroke-opacity="0.55"/>
+        <text x="35" y="23" text-anchor="middle" fill="#CBD5E1">iOS</text>
+      </g>
+      <g transform="translate(192,252)">
+        <rect width="150" height="34" rx="17" fill="#132033" stroke="#D97757" stroke-opacity="0.6"/>
+        <text x="75" y="23" text-anchor="middle" fill="#F3A27E">OWASP MASTG</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Right side: the rating ladder this whole repo exists to enforce -->
+  <g transform="translate(905,78)" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+    <text x="0" y="0" font-size="13" font-weight="700" letter-spacing="1.5" fill="#64748B">EXPLOITATION PANEL VERDICT</text>
+
+    <g transform="translate(0,24)">
+      <rect width="230" height="46" rx="8" fill="#0F2A20" stroke="#22C55E" stroke-width="1.5"/>
+      <circle cx="26" cy="23" r="9" fill="none" stroke="#4ADE80" stroke-width="2.5"/>
+      <path d="M21 23 L25 27 L32 18" fill="none" stroke="#4ADE80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="46" y="29" font-size="17" font-weight="700" fill="#86EFAC">Confirmed</text>
+    </g>
+
+    <g transform="translate(0,82)">
+      <rect width="230" height="46" rx="8" fill="#241D0B" stroke="#F59E0B" stroke-width="1.5"/>
+      <circle cx="26" cy="23" r="9" fill="none" stroke="#FBBF24" stroke-width="2.5"/>
+      <text x="22" y="28" font-size="14" font-weight="700" fill="#FBBF24">?</text>
+      <text x="46" y="29" font-size="17" font-weight="700" fill="#FDE68A">Potential</text>
+    </g>
+
+    <g transform="translate(0,140)">
+      <rect width="230" height="46" rx="8" fill="#1A2030" stroke="#64748B" stroke-width="1.5"/>
+      <circle cx="26" cy="23" r="9" fill="none" stroke="#94A3B8" stroke-width="2.5"/>
+      <line x1="21" y1="18" x2="31" y2="28" stroke="#94A3B8" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="31" y1="18" x2="21" y2="28" stroke="#94A3B8" stroke-width="2.5" stroke-linecap="round"/>
+      <text x="46" y="29" font-size="17" font-weight="700" fill="#CBD5E1">False Positive</text>
+    </g>
+
+    <text x="0" y="214" font-size="13.5" fill="#64748B">one well-evidenced refutation beats</text>
+    <text x="0" y="234" font-size="13.5" fill="#64748B">any number of un-evidenced "stands"</text>
+  </g>
+</svg>
