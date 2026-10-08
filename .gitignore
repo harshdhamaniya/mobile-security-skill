@@ -1,7 +1,12 @@
-# Engagement working directories created by the skill at run time — these contain
+# Engagement working directories created by the skill at run time: these contain
 # real target artifacts, extracted secrets, and evidence from an actual audit.
 # Never commit an engagement's output to this (or any) repo.
 engagement-*/
+
+# Exception: the one demo engagement committed on purpose, as real evidence for
+# examples/steps-to-reproduce.md. It's a synthetic fixture authored for this repo,
+# not a real target, so none of the "never commit this" reasoning above applies to it.
+!examples/fixtures/vulnbank-demo/engagement-vulnbank-demo/
 
 # OS/editor noise
 .DS_Store

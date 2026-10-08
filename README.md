@@ -67,7 +67,7 @@ None of these are required to start. `mobile-recon-triage` and every specialist 
 
 Static analysis, human or AI, over-reports. A grep hit for `addJavascriptInterface` or a missing `FLAG_IMMUTABLE` is a *candidate*, not a confirmed vulnerability, until someone checks whether a sanitizer elsewhere on the path already closes it, whether the attacker model is actually what it's claimed to be, and whether a platform default on the SDK version in scope already mitigates it. Most "AI finds bugs" tooling stops at the candidate stage and calls it a report.
 
-This skill doesn't. Every finding that matters goes through `exploit-verifier-prosecutor`, which builds the strongest *honest* exploitability case it can. Then 2–3 independent `exploitability-skeptic` instances, each told explicitly to go re-read the code and genuinely try to refute the case rather than rubber-stamp it, get a turn at it. A finding only reaches **Confirmed** if the skeptics' refutation attempts fail on their own merits. See [`references/severity-rating.md`](skills/mobile-security-skill/references/severity-rating.md) for the exact decision rule, and [`examples/sample-walkthrough.md`](examples/sample-walkthrough.md) for a full worked example of a finding going through the whole pipeline.
+This skill doesn't. Every finding that matters goes through `exploit-verifier-prosecutor`, which builds the strongest *honest* exploitability case it can. Then 2–3 independent `exploitability-skeptic` instances, each told explicitly to go re-read the code and genuinely try to refute the case rather than rubber-stamp it, get a turn at it. A finding only reaches **Confirmed** if the skeptics' refutation attempts fail on their own merits. See [`references/severity-rating.md`](skills/mobile-security-skill/references/severity-rating.md) for the exact decision rule, [`examples/sample-walkthrough.md`](examples/sample-walkthrough.md) for a narrated worked example, and [`examples/steps-to-reproduce.md`](examples/steps-to-reproduce.md) for a real run: actual commands, actual agent output, and the actual committed evidence files, not a narrative.
 
 ## Agent roster
 
@@ -114,8 +114,10 @@ Mobile Security Skill/
 │       └── report-template.md             # final report skeleton
 ├── agents/                                # 18 subagent definitions, one per table row above
 └── examples/
-    ├── sample-walkthrough.md              # one finding traced through the whole pipeline
-    └── prompts.md                         # copy-paste prompt library for every use case
+    ├── sample-walkthrough.md              # one finding traced through the whole pipeline, narrated
+    ├── steps-to-reproduce.md              # a real run: real commands, real agent output, committed evidence
+    ├── prompts.md                         # copy-paste prompt library for every use case
+    └── fixtures/vulnbank-demo/            # the synthetic fixture + committed engagement output used above
 ```
 
 ## Usage
