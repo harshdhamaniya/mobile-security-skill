@@ -1,0 +1,304 @@
+<!--
+  HTML skeleton for engagement-<slug>/report/final-report.html.
+  report-synthesizer fills this in alongside the markdown report from report-template.md.
+  Read this whole file before writing the HTML report: it is the structure and the style,
+  not just a visual reference.
+
+  How to use this file:
+  1. Copy it as the starting point for final-report.html.
+  2. Replace every {{TOKEN}} with real content. Tokens are listed and explained below.
+  3. For each repeatable block (a finding card, a false-positive row, an attack-surface
+     item), there is exactly ONE example between a START/END comment pair. Duplicate that
+     one block as many times as you have real items, filling in its tokens each time, then
+     delete the comment markers in the final file. Do not leave the literal example content
+     in the output, and do not leave a block with zero real items: write "None identified"
+     as a single plain line instead (same rule as the markdown template).
+  4. Keep the CSS in <style> exactly as-is unless a color/severity token needs adding. This
+     file has zero external dependencies (no CDN, no webfonts, no JS) on purpose: a security
+     report should open correctly offline, in an air-gapped environment, or years from now
+     with no broken links. Do not add a <script> tag or an external <link> for an existing
+     browser feature (the collapsible finding cards below use plain <details>/<summary>,
+     which needs no JavaScript at all).
+  5. Severity classes: sev-critical, sev-high, sev-medium, sev-low, sev-info.
+     Status classes: status-confirmed, status-potential, status-informational, status-fp.
+     Apply exactly one of each to a finding's badge spans, matching its final_severity/status.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mobile Security Assessment: {{APP_NAME}}</title>
+<style>
+  :root {
+    --ink: #1a202c;
+    --ink-soft: #4a5568;
+    --paper: #ffffff;
+    --paper-soft: #f7fafc;
+    --line: #e2e8f0;
+    --accent: #1e3a5f;
+    --accent-soft: #eef2f7;
+
+    --sev-critical-bg: #fee2e2; --sev-critical-fg: #991b1b; --sev-critical-bd: #fca5a5;
+    --sev-high-bg: #ffedd5;     --sev-high-fg: #9a3412;     --sev-high-bd: #fdba74;
+    --sev-medium-bg: #fef3c7;   --sev-medium-fg: #92400e;   --sev-medium-bd: #fcd34d;
+    --sev-low-bg: #ecfccb;      --sev-low-fg: #3f6212;      --sev-low-bd: #bef264;
+    --sev-info-bg: #f1f5f9;     --sev-info-fg: #475569;     --sev-info-bd: #cbd5e1;
+
+    --status-confirmed-bg: #dcfce7; --status-confirmed-fg: #166534; --status-confirmed-bd: #86efac;
+    --status-potential-bg: #fef3c7; --status-potential-fg: #92400e; --status-potential-bd: #fcd34d;
+    --status-info-bg: #f1f5f9;      --status-info-fg: #475569;      --status-info-bd: #cbd5e1;
+    --status-fp-bg: #f1f5f9;        --status-fp-fg: #64748b;        --status-fp-bd: #e2e8f0;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--paper-soft);
+    line-height: 1.6;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px 80px; }
+
+  header.hero {
+    background: linear-gradient(135deg, #0f1c2e, var(--accent));
+    color: #f1f5f9;
+    padding: 48px 24px;
+    margin-bottom: 32px;
+  }
+  header.hero .wrap { padding: 0; }
+  header.hero h1 { margin: 0 0 8px; font-size: 1.9rem; }
+  header.hero .meta { color: #b8c4d4; font-size: 0.95rem; }
+  header.hero .meta span { margin-right: 18px; }
+
+  nav.toc {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-bottom: 32px;
+    font-size: 0.92rem;
+  }
+  nav.toc a { color: var(--accent); text-decoration: none; margin-right: 16px; }
+  nav.toc a:hover { text-decoration: underline; }
+
+  section { margin-bottom: 40px; }
+  h2 {
+    font-size: 1.3rem;
+    border-bottom: 2px solid var(--line);
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+  }
+  h3 { font-size: 1.05rem; margin: 0 0 6px; }
+
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px 24px;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid;
+  }
+  .sev-critical { background: var(--sev-critical-bg); color: var(--sev-critical-fg); border-color: var(--sev-critical-bd); }
+  .sev-high     { background: var(--sev-high-bg);     color: var(--sev-high-fg);     border-color: var(--sev-high-bd); }
+  .sev-medium   { background: var(--sev-medium-bg);   color: var(--sev-medium-fg);   border-color: var(--sev-medium-bd); }
+  .sev-low      { background: var(--sev-low-bg);      color: var(--sev-low-fg);      border-color: var(--sev-low-bd); }
+  .sev-info     { background: var(--sev-info-bg);     color: var(--sev-info-fg);     border-color: var(--sev-info-bd); }
+
+  .status-confirmed    { background: var(--status-confirmed-bg); color: var(--status-confirmed-fg); border-color: var(--status-confirmed-bd); }
+  .status-potential     { background: var(--status-potential-bg); color: var(--status-potential-fg); border-color: var(--status-potential-bd); }
+  .status-informational { background: var(--status-info-bg);      color: var(--status-info-fg);      border-color: var(--status-info-bd); }
+  .status-fp             { background: var(--status-fp-bg);        color: var(--status-fp-fg);        border-color: var(--status-fp-bd); text-decoration: line-through; }
+
+  table { width: 100%; border-collapse: collapse; background: var(--paper); border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: 0.92rem; }
+  th { background: var(--accent-soft); color: var(--ink-soft); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  tr:last-child td { border-bottom: none; }
+
+  details.finding {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    margin-bottom: 14px;
+    padding: 0;
+  }
+  details.finding > summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+  }
+  details.finding > summary::-webkit-details-marker { display: none; }
+  details.finding > summary::before { content: "▸"; color: var(--ink-soft); transition: transform 0.15s; }
+  details.finding[open] > summary::before { transform: rotate(90deg); }
+  details.finding .finding-id { color: var(--ink-soft); font-weight: 400; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.85rem; }
+  details.finding .body { padding: 0 22px 20px; border-top: 1px solid var(--line); }
+  details.finding dl { display: grid; grid-template-columns: 140px 1fr; gap: 6px 14px; margin: 14px 0; font-size: 0.92rem; }
+  details.finding dt { color: var(--ink-soft); }
+  details.finding code { background: var(--paper-soft); padding: 1px 5px; border-radius: 4px; font-size: 0.88em; }
+  details.finding ul { margin: 6px 0; padding-left: 20px; }
+
+  .exec-summary { font-size: 1.05rem; }
+  .appendix-item { padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .appendix-item:last-child { border-bottom: none; }
+
+  footer { text-align: center; color: var(--ink-soft); font-size: 0.85rem; padding-top: 24px; border-top: 1px solid var(--line); }
+
+  @media print {
+    body { background: #fff; }
+    header.hero { background: var(--accent) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    nav.toc { display: none; }
+    details.finding { break-inside: avoid; border: 1px solid #999; }
+    details.finding > summary::before { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Mobile Application Security Assessment</h1>
+    <div class="meta">
+      <span><strong>{{APP_NAME}}</strong> {{APP_VERSION_OR_BUILD}}</span>
+      <span>Platform: {{PLATFORMS}}</span>
+      <span>Assessed: {{ASSESSMENT_DATES}}</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <a href="#exec-summary">Executive summary</a>
+  <a href="#findings-summary">Findings summary</a>
+  <a href="#confirmed">Confirmed</a>
+  <a href="#potential">Potential</a>
+  <a href="#informational">Informational</a>
+  <a href="#appendix-a">Appendix A: False positives</a>
+  <a href="#appendix-b">Appendix B: Attack surface</a>
+  <a href="#appendix-c">Appendix C: Methodology</a>
+</nav>
+
+<section id="exec-summary">
+  <h2>Executive summary</h2>
+  <div class="card exec-summary">
+    <p>{{EXEC_SUMMARY_TEXT}}</p>
+  </div>
+</section>
+
+<section id="findings-summary">
+  <h2>Findings summary</h2>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Finding</th><th>Severity</th><th>Status</th><th>Attacker model</th><th>Ref IDs</th></tr>
+    </thead>
+    <tbody>
+      <!-- SUMMARY_ROW_TEMPLATE_START -->
+      <tr>
+        <td>{{N}}</td>
+        <td>{{FINDING_TITLE}}</td>
+        <td><span class="badge sev-{{sevclass}}">{{Severity}}</span></td>
+        <td><span class="badge status-{{statusclass}}">{{Status}}</span></td>
+        <td>{{attacker_model}}</td>
+        <td>{{ref_ids_comma_separated}}</td>
+      </tr>
+      <!-- SUMMARY_ROW_TEMPLATE_END: one <tr> per finding, Confirmed-Critical first, then
+           descending severity within status tier (Confirmed > Potential > Informational).
+           Omit False Positives from this table; they go in Appendix A only. -->
+    </tbody>
+  </table>
+</section>
+
+<section id="confirmed">
+  <h2>Confirmed findings</h2>
+  <!-- FINDING_CARD_TEMPLATE_START: one <details class="finding"> per Confirmed finding.
+       Re-use this exact same card markup for the Potential and Informational sections
+       below, just with that finding's own data and the matching status-* badge class. -->
+  <details class="finding">
+    <summary>
+      <span class="badge sev-{{sevclass}}">{{Severity}}</span>
+      <span class="badge status-{{statusclass}}">{{Status}}</span>
+      {{FINDING_TITLE}}
+      <span class="finding-id">{{finding_id}}</span>
+    </summary>
+    <div class="body">
+      <dl>
+        <dt>Attacker model</dt><dd>{{attacker_model}}</dd>
+        <dt>MASVS</dt><dd>{{masvs_comma_separated}}</dd>
+        <dt>Ref IDs</dt><dd>{{ref_ids_comma_separated}}</dd>
+      </dl>
+      <p><strong>Description:</strong> {{description_in_target_apps_own_terms}}</p>
+      <p><strong>Attack path:</strong> {{source_to_sink_summary}}</p>
+      <p><strong>Evidence:</strong> {{evidence_summary_with_links_to_artifacts}}</p>
+      <p><strong>Exploitation panel verdict:</strong> {{two_or_three_sentence_summary_of_why_skeptics_refutation_failed_or_why_it_landed_here_pointing_at_exploitation_finding_id_md_for_the_full_transcript}}</p>
+      <p><strong>Remediation:</strong> {{specific_actionable_fix}}</p>
+    </div>
+  </details>
+  <!-- FINDING_CARD_TEMPLATE_END -->
+</section>
+
+<section id="potential">
+  <h2>Potential findings</h2>
+  <!-- Same card markup as the Confirmed section above, status-potential badge class.
+       Close each one with "why it's not Confirmed" per report-template.md: what evidence
+       would upgrade it, pulled from the prosecutor's "Gaps in current evidence" section. -->
+</section>
+
+<section id="informational">
+  <h2>Informational / hardening observations</h2>
+  <!-- Lighter-weight list is fine here, matching the markdown template: title, ref ID,
+       one-line rationale, suggested fix. Use the same .appendix-item pattern as Appendix B
+       below rather than a full finding card, since these don't carry a panel transcript. -->
+</section>
+
+<section id="appendix-a">
+  <h2>Appendix A: False positives / ruled out</h2>
+  <table>
+    <thead><tr><th>Finding</th><th>What was suspected</th><th>Why the refutation held</th></tr></thead>
+    <tbody>
+      <!-- One <tr> per false positive, or a single row/line "None identified". -->
+    </tbody>
+  </table>
+</section>
+
+<section id="appendix-b">
+  <h2>Appendix B: Attack surface inventory</h2>
+  <div class="card">
+    <!-- From target-profile.md: exported components, URL schemes/App Links, WebViews,
+         network endpoints, permissions/entitlements, third-party SDKs. One
+         <div class="appendix-item"> per category, or a short <ul> per category. -->
+  </div>
+</section>
+
+<section id="appendix-c">
+  <h2>Appendix C: Methodology &amp; limitations</h2>
+  <div class="card">
+    <p>{{which_specialists_ran_and_which_were_skipped_and_why}}</p>
+    <p>{{whether_phase_3_dynamic_ran_and_why_or_why_not}}</p>
+    <p>{{tools_actually_used}}</p>
+    <p>{{anything_out_of_scope_per_scope_md}}</p>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  Generated by <strong>Mobile Security Skill</strong> · report-synthesizer, Phase 5 ·
+  <a href="https://github.com/harshdhamaniya/mobile-security-skill">github.com/harshdhamaniya/mobile-security-skill</a>
+</footer>
+
+</body>
+</html>

@@ -90,7 +90,7 @@ This skill doesn't. Every finding that matters goes through `exploit-verifier-pr
 | [`dynamic-runtime-verifier`](agents/dynamic-runtime-verifier.md) | 3 | [`advanced-attacks.md`](skills/mobile-security-skill/references/advanced-attacks.md) Part G + every doc's dynamic-confirmation steps |
 | [`exploit-verifier-prosecutor`](agents/exploit-verifier-prosecutor.md) | 4 | [`severity-rating.md`](skills/mobile-security-skill/references/severity-rating.md) |
 | [`exploitability-skeptic`](agents/exploitability-skeptic.md) | 4 | [`severity-rating.md`](skills/mobile-security-skill/references/severity-rating.md) |
-| [`report-synthesizer`](agents/report-synthesizer.md) | 5 | [`report-template.md`](skills/mobile-security-skill/references/report-template.md) |
+| [`report-synthesizer`](agents/report-synthesizer.md) | 5 | [`report-template.md`](skills/mobile-security-skill/references/report-template.md) + [`report-template.html`](skills/mobile-security-skill/references/report-template.html) |
 
 Every specialist agent gets `Read, Grep, Glob, Bash, Write`: enough to decompile, grep, and instrument, never blanket `Edit` on a target's source. The prosecutor, skeptic, and report-synthesizer are deliberately scoped to `Read`/`Grep`/`Glob`/`Write` only (no `Bash`). They adjudicate from evidence the specialists already gathered rather than generating new evidence unilaterally; if they need more, they say so and the orchestrator loops back to a specialist instead.
 
@@ -111,7 +111,8 @@ Mobile Security Skill/
 │       ├── storage-crypto.md              # STO-*/CRY-* checklists
 │       ├── finding-schema.md              # the JSON shape every agent writes
 │       ├── severity-rating.md             # the adversarial confirmation decision rule
-│       └── report-template.md             # final report skeleton
+│       ├── report-template.md             # final report skeleton (markdown)
+│       └── report-template.html           # final report skeleton (styled, self-contained HTML)
 ├── agents/                                # 18 subagent definitions, one per table row above
 └── examples/
     ├── sample-walkthrough.md              # one finding traced through the whole pipeline, narrated
@@ -169,7 +170,7 @@ I want to see how many of the known-intentional bugs get confirmed vs. flagged p
 
 **Scaling**: a narrow question ("does this app pin certs?") runs one specialist plus a focused panel pass, not the whole pipeline. "Full audit" / "MASVS assessment" / "pentest this app" runs the whole thing. See `SKILL.md`'s "Scaling to the ask" section.
 
-**Output**: everything lands in `engagement-<slug>/` next to wherever you're working: `scope.md` (the authorization record), `target-profile.md` (attack-surface map), `findings/findings.jsonl` (every candidate finding), `exploitation/<finding_id>.md` (every prosecutor/skeptic transcript, worth reading even for findings you don't act on since it shows what was actually checked), and `report/final-report.md` (the deliverable). `engagement-*/` is gitignored by default since it contains real target artifacts and evidence from an actual audit. Never commit one.
+**Output**: everything lands in `engagement-<slug>/` next to wherever you're working: `scope.md` (the authorization record), `target-profile.md` (attack-surface map), `findings/findings.jsonl` (every candidate finding), `exploitation/<finding_id>.md` (every prosecutor/skeptic transcript, worth reading even for findings you don't act on since it shows what was actually checked), and `report/final-report.html` plus `report/final-report.md` (the deliverable: a well-formed, self-contained HTML report with color-coded severity/status badges and collapsible finding details, alongside the same content in plain markdown). `engagement-*/` is gitignored by default since it contains real target artifacts and evidence from an actual audit. Never commit one.
 
 ## Authorization & Legal
 

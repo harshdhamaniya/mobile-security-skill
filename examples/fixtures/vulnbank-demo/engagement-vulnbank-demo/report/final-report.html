@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mobile Security Assessment: VulnBank Demo</title>
+<style>
+  :root {
+    --ink: #1a202c;
+    --ink-soft: #4a5568;
+    --paper: #ffffff;
+    --paper-soft: #f7fafc;
+    --line: #e2e8f0;
+    --accent: #1e3a5f;
+    --accent-soft: #eef2f7;
+
+    --sev-critical-bg: #fee2e2; --sev-critical-fg: #991b1b; --sev-critical-bd: #fca5a5;
+    --sev-high-bg: #ffedd5;     --sev-high-fg: #9a3412;     --sev-high-bd: #fdba74;
+    --sev-medium-bg: #fef3c7;   --sev-medium-fg: #92400e;   --sev-medium-bd: #fcd34d;
+    --sev-low-bg: #ecfccb;      --sev-low-fg: #3f6212;      --sev-low-bd: #bef264;
+    --sev-info-bg: #f1f5f9;     --sev-info-fg: #475569;     --sev-info-bd: #cbd5e1;
+
+    --status-confirmed-bg: #dcfce7; --status-confirmed-fg: #166534; --status-confirmed-bd: #86efac;
+    --status-potential-bg: #fef3c7; --status-potential-fg: #92400e; --status-potential-bd: #fcd34d;
+    --status-info-bg: #f1f5f9;      --status-info-fg: #475569;      --status-info-bd: #cbd5e1;
+    --status-fp-bg: #f1f5f9;        --status-fp-fg: #64748b;        --status-fp-bd: #e2e8f0;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--paper-soft);
+    line-height: 1.6;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px 80px; }
+
+  header.hero {
+    background: linear-gradient(135deg, #0f1c2e, var(--accent));
+    color: #f1f5f9;
+    padding: 48px 24px;
+    margin-bottom: 32px;
+  }
+  header.hero .wrap { padding: 0; }
+  header.hero h1 { margin: 0 0 8px; font-size: 1.9rem; }
+  header.hero .meta { color: #b8c4d4; font-size: 0.95rem; }
+  header.hero .meta span { margin-right: 18px; }
+
+  .disclaimer {
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-bottom: 24px;
+    font-size: 0.92rem;
+    color: #78350f;
+  }
+
+  nav.toc {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-bottom: 32px;
+    font-size: 0.92rem;
+  }
+  nav.toc a { color: var(--accent); text-decoration: none; margin-right: 16px; }
+  nav.toc a:hover { text-decoration: underline; }
+
+  section { margin-bottom: 40px; }
+  h2 {
+    font-size: 1.3rem;
+    border-bottom: 2px solid var(--line);
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+  }
+  h3 { font-size: 1.05rem; margin: 0 0 6px; }
+  h4.subhead { font-size: 0.95rem; margin: 20px 0 10px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.03em; }
+
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px 24px;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid;
+  }
+  .sev-critical { background: var(--sev-critical-bg); color: var(--sev-critical-fg); border-color: var(--sev-critical-bd); }
+  .sev-high     { background: var(--sev-high-bg);     color: var(--sev-high-fg);     border-color: var(--sev-high-bd); }
+  .sev-medium   { background: var(--sev-medium-bg);   color: var(--sev-medium-fg);   border-color: var(--sev-medium-bd); }
+  .sev-low      { background: var(--sev-low-bg);      color: var(--sev-low-fg);      border-color: var(--sev-low-bd); }
+  .sev-info     { background: var(--sev-info-bg);     color: var(--sev-info-fg);     border-color: var(--sev-info-bd); }
+
+  .status-confirmed    { background: var(--status-confirmed-bg); color: var(--status-confirmed-fg); border-color: var(--status-confirmed-bd); }
+  .status-potential     { background: var(--status-potential-bg); color: var(--status-potential-fg); border-color: var(--status-potential-bd); }
+  .status-informational { background: var(--status-info-bg);      color: var(--status-info-fg);      border-color: var(--status-info-bd); }
+  .status-fp             { background: var(--status-fp-bg);        color: var(--status-fp-fg);        border-color: var(--status-fp-bd); text-decoration: line-through; }
+
+  table { width: 100%; border-collapse: collapse; background: var(--paper); border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: 0.92rem; }
+  th { background: var(--accent-soft); color: var(--ink-soft); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  tr:last-child td { border-bottom: none; }
+
+  details.finding {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    margin-bottom: 14px;
+    padding: 0;
+  }
+  details.finding > summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+  }
+  details.finding > summary::-webkit-details-marker { display: none; }
+  details.finding > summary::before { content: "▸"; color: var(--ink-soft); transition: transform 0.15s; }
+  details.finding[open] > summary::before { transform: rotate(90deg); }
+  details.finding .finding-id { color: var(--ink-soft); font-weight: 400; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.85rem; }
+  details.finding .body { padding: 0 22px 20px; border-top: 1px solid var(--line); }
+  details.finding dl { display: grid; grid-template-columns: 140px 1fr; gap: 6px 14px; margin: 14px 0; font-size: 0.92rem; }
+  details.finding dt { color: var(--ink-soft); }
+  details.finding code { background: var(--paper-soft); padding: 1px 5px; border-radius: 4px; font-size: 0.88em; }
+  details.finding ul { margin: 6px 0; padding-left: 20px; }
+
+  .exec-summary { font-size: 1.05rem; }
+  .appendix-item { padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .appendix-item:last-child { border-bottom: none; }
+  .appendix-item strong { display: block; margin-bottom: 4px; }
+  .note-box { background: var(--paper-soft); border-left: 3px solid var(--accent); padding: 10px 16px; margin: 14px 0; font-size: 0.9rem; color: var(--ink-soft); }
+
+  footer { text-align: center; color: var(--ink-soft); font-size: 0.85rem; padding-top: 24px; border-top: 1px solid var(--line); }
+
+  @media print {
+    body { background: #fff; }
+    header.hero { background: var(--accent) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    nav.toc { display: none; }
+    details.finding { break-inside: avoid; border: 1px solid #999; }
+    details.finding > summary::before { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Mobile Application Security Assessment</h1>
+    <div class="meta">
+      <span><strong>VulnBank Demo</strong> (com.vulnbankdemo.app): manifest-only fixture, no version/build</span>
+      <span>Platform: Android only</span>
+      <span>Assessed: 2026-10-08 to 2026-10-09</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<div class="disclaimer">
+  <strong>What this report actually is.</strong> VulnBank Demo is a synthetic, hand-authored <code>AndroidManifest.xml</code> fixture (per its own <code>README.md</code>: "It is not a real app, not downloaded from anywhere, and not based on any specific published application... It intentionally contains a small number of well-known manifest misconfigurations... so the pipeline has something real to find."). There is no APK/AAB, no DEX, no source tree, and no <code>build.gradle</code> anywhere in this engagement. This report documents a genuine run of this skill's five-phase pipeline, including a real <code>adb</code> session against a real connected device, against that fixture, to demonstrate the pipeline end to end. It is <strong>not</strong> a production security audit of a real banking application.
+</div>
+
+<nav class="toc">
+  <a href="#exec-summary">Executive summary</a>
+  <a href="#findings-summary">Findings summary</a>
+  <a href="#confirmed">Confirmed</a>
+  <a href="#potential">Potential</a>
+  <a href="#informational">Informational</a>
+  <a href="#appendix-a">Appendix A: False positives</a>
+  <a href="#appendix-b">Appendix B: Attack surface</a>
+  <a href="#appendix-c">Appendix C: Methodology</a>
+</nav>
+
+<section id="exec-summary">
+  <h2>Executive summary</h2>
+  <div class="card exec-summary">
+    <p>No Confirmed findings resulted from this engagement. The adversarial exploitation panel reviewed two manifest-level issues and elevated both to <strong>Potential / High</strong>: an explicitly-set <code>android:debuggable="true"</code> (AND-MAN-001), and an exported, browser-reachable deep link into <code>.ui.TransferMoneyActivity</code> with no permission guard (AND-MAN-003). Both were held at Potential rather than Confirmed for the same structural reason: this fixture has no installable build or implementation code, so a specific, named open conditional (a possible release-build override for the first; a possible in-app re-authentication step for the second) could not be closed by either static or dynamic evidence. Four further manifest observations (an unguarded exported <code>AccountProvider</code>, an unrestricted <code>allowBackup</code>, a missing <code>&lt;uses-sdk&gt;</code>, and a full component inventory) were logged by the manifest specialist but deliberately not escalated to the panel for this walkthrough: a scoping choice, not an oversight (see Appendix C). Readers should treat the two Potential/High findings as the walkthrough's headline result, and the overall exercise as a demonstration of this skill's reporting discipline on a minimal artifact, not as an assessment of a real shipped product.</p>
+  </div>
+</section>
+
+<section id="findings-summary">
+  <h2>Findings summary</h2>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Finding</th><th>Severity</th><th>Status</th><th>Attacker model</th><th>Ref IDs</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>TransferMoneyActivity exported with BROWSABLE custom-scheme deep link and no permission guard</td>
+        <td><span class="badge sev-high">High</span></td>
+        <td><span class="badge status-potential">Potential</span></td>
+        <td>remote</td>
+        <td>MAN-04, MAN-09</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>android:debuggable="true" set explicitly on &lt;application&gt;</td>
+        <td><span class="badge sev-high">High</span></td>
+        <td><span class="badge status-potential">Potential</span></td>
+        <td>physical</td>
+        <td>MAN-01</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>AccountProvider exported with no permission, no path-permission, no URI scoping</td>
+        <td><span class="badge sev-high">High</span></td>
+        <td><span class="badge status-informational">Candidate*</span></td>
+        <td>other-app</td>
+        <td>MAN-04, MAN-06</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>android:allowBackup="true" with no backup-content restriction</td>
+        <td><span class="badge sev-medium">Medium</span></td>
+        <td><span class="badge status-informational">Candidate*</span></td>
+        <td>physical</td>
+        <td>MAN-02</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>No &lt;uses-sdk&gt; declared: min/targetSdkVersion undeclared</td>
+        <td><span class="badge sev-low">Low</span></td>
+        <td><span class="badge status-informational">Candidate*</span></td>
+        <td>none</td>
+        <td>MAN-12</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Exported-component inventory (IPC surface map for downstream specialists)</td>
+        <td><span class="badge sev-info">Info</span></td>
+        <td><span class="badge status-informational">Candidate*</span></td>
+        <td>other-app</td>
+        <td>MAN-04</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="note-box">
+    * <strong>Candidate</strong> = a static-only finding from <code>android-manifest-auditor</code> that was never escalated to the adversarial exploitation panel in this engagement (a deliberate scoping choice for this demo, not a verdict that the finding is weak or "ruled out"; see Appendix C). This report's CSS has no distinct color for "Candidate," so it reuses the neutral informational badge styling; do not read that as this finding's severity being informational; see the Severity column for that.<br><br>
+    No False Positives were produced in this engagement: see Appendix A. <strong>Dedup note:</strong> all six findings were authored by the same specialist (<code>android-manifest-auditor</code>); no cross-specialist duplicate root causes were found, so no merge was performed. AND-MAN-006 shares ref ID <code>MAN-04</code> with AND-MAN-003/004 but explicitly defers to them rather than restating their analysis: correct cross-referencing, not a duplicate.
+  </div>
+</section>
+
+<section id="confirmed">
+  <h2>Confirmed findings</h2>
+  <p>None identified. No finding in this engagement reached Confirmed status. The two findings escalated to the adversarial panel (AND-MAN-001, AND-MAN-003) were both capped at Potential/High because this fixture has no installable build or implementation code with which to dynamically exercise either finding's sink, or to close a specific, named open conditional the panel identified in each case (see Potential section below).</p>
+</section>
+
+<section id="potential">
+  <h2>Potential findings</h2>
+
+  <details class="finding" open>
+    <summary>
+      <span class="badge sev-high">High</span>
+      <span class="badge status-potential">Potential</span>
+      TransferMoneyActivity exported with BROWSABLE custom-scheme deep link and no permission guard
+      <span class="finding-id">AND-MAN-003</span>
+    </summary>
+    <div class="body">
+      <dl>
+        <dt>Attacker model</dt><dd>remote (one realistic precondition: victim already has the app installed and taps/follows an attacker-supplied link, "remote delivery, one user tap," not zero-click)</dd>
+        <dt>MASVS</dt><dd>MASVS-PLATFORM-1, MASVS-AUTH-1</dd>
+        <dt>Ref IDs</dt><dd>MAN-04, MAN-09</dd>
+      </dl>
+      <p><strong>Description:</strong> <code>.ui.TransferMoneyActivity</code> is declared <code>android:exported="true"</code> with an intent-filter carrying <code>action=VIEW</code>, <code>category=DEFAULT</code>, <code>category=BROWSABLE</code>, and <code>data android:scheme="vulnbank" android:host="transfer"</code> (<code>extracted/AndroidManifest.xml:24-33</code>). No <code>android:permission</code> attribute exists on the activity, and no <code>&lt;permission&gt;</code> element is declared anywhere in the 42-line manifest. The <code>&lt;data&gt;</code> element declares only <code>scheme</code>/<code>host</code> with no path constraint, so any path/query appended to the URI still routes to this activity.</p>
+      <p><strong>Attack path:</strong> Source: attacker crafts a <code>vulnbank://transfer</code> URI and embeds it in a web page, SMS, or chat link (or a second installed app builds an explicit/implicit Intent). Delivery: <code>BROWSABLE</code> routes a tapped link directly to the activity with zero access-control checkpoint. Sink: <code>TransferMoneyActivity.onCreate()</code>/<code>onNewIntent()</code> receives the Intent; whether this executes a transfer or merely opens a still-authenticated form is <strong>unverified</strong>: no implementation code exists in this fixture.</p>
+      <p><strong>Evidence:</strong> Static: <code>extracted/AndroidManifest.xml:L24-33</code>, independently re-verified by the prosecutor and both skeptics. Dynamic: <code>findings/dynamic-session-log.md</code>: <code>adb shell am start -a android.intent.action.VIEW -d "vulnbank://transfer" com.vulnbankdemo.app</code> against device <code>84f7a024</code> returned <code>Error: Activity not started, unable to resolve Intent</code>; re-run with no explicit package returned the identical failure, confirming no app on that device claims the scheme at all.</p>
+      <p><strong>Exploitation panel verdict:</strong> Two independent skeptic passes both returned "stands": neither found an attacker-model inflation, a missed sanitizer, an SDK-version default that rescues it, or a standard-behavior misread. Both independently named the same unresolved conditional: an in-app re-authentication/confirmation step between launch and an actual transfer, which no evidence in this record can confirm or rule out. Reachability alone is unambiguous here, but that open conditional on static-only evidence is Potential's definition, not Confirmed's. Full reasoning in <code>exploitation/AND-MAN-003.md</code>.</p>
+      <p><strong>Remediation:</strong> Add a signature-level <code>android:permission</code> guard (or set <code>exported="false"</code> if no legitimate external caller needs it): the MAN-04 fix. Migrate the bare custom scheme to a Verified Android App Link (<code>android:autoVerify="true"</code> + <code>assetlinks.json</code>) to close the scheme-hijack angle: the MAN-09 fix. Enforce a fresh authentication/confirmation step in the activity itself before executing any transfer, regardless of manifest changes.</p>
+    </div>
+  </details>
+
+  <details class="finding" open>
+    <summary>
+      <span class="badge sev-high">High</span>
+      <span class="badge status-potential">Potential</span>
+      android:debuggable="true" set explicitly on &lt;application&gt;
+      <span class="finding-id">AND-MAN-001</span>
+    </summary>
+    <div class="body">
+      <dl>
+        <dt>Attacker model</dt><dd>physical (requires an already-authorized ADB session: USB debugging enabled and host already authorized, or a prior wireless pairing; not "any physical access, no questions asked")</dd>
+        <dt>MASVS</dt><dd>MASVS-RESILIENCE-2</dd>
+        <dt>Ref IDs</dt><dd>MAN-01</dd>
+      </dl>
+      <p><strong>Description:</strong> <code>android:debuggable="true"</code> is set as a literal, unconditional attribute on the <code>&lt;application&gt;</code> element (<code>extracted/AndroidManifest.xml:10</code>, inside the block spanning lines 7-13). No build-variant indicator, manifest-merger directive, or second manifest exists anywhere in the file to narrow or gate it.</p>
+      <p><strong>Attack path:</strong> Source: the literal declaration. Platform effect: marks the app's UID debuggable, enabling root-free <code>run-as</code> UID switching and JDWP debugger attach from an authorized ADB session. Sink: full read/write of <code>/data/data/com.vulnbankdemo.app/</code> via <code>run-as</code>, and/or a live JDWP attach capable of defeating any purely client-side check in memory.</p>
+      <p><strong>Evidence:</strong> Static: <code>extracted/AndroidManifest.xml:L7-13</code>, independently re-verified by the prosecutor and both skeptics. Dynamic: <code>findings/dynamic-session-log.md</code>: <code>adb shell run-as com.vulnbankdemo.app id</code> against device <code>84f7a024</code> returned <code>run-as: unknown package</code>; cross-checked via <code>pm list packages</code> (no match among 389 packages) and <code>dumpsys package</code> (not found): the package has never been installed on the only available device.</p>
+      <p><strong>Exploitation panel verdict:</strong> Both skeptic passes returned "stands," finding no release-build override, no manifest-merger directive, no SDK-version-gated default, and no basis to inflate/deflate the <code>physical</code> label. Nothing broke the chain, but the orchestrator still held this at Potential: the dynamic attempt proves <code>run-as</code>/JDWP was never exercised against a live process, and no <code>build.gradle</code> exists anywhere in the engagement to rule out a release-variant override forcing <code>debuggable="false"</code>: a genuinely open conditional. Full reasoning in <code>exploitation/AND-MAN-001.md</code>.</p>
+      <p><strong>Remediation:</strong> Set/confirm <code>android:debuggable="false"</code> for the release build type and verify no manifest-merger directive reintroduces it: the MAN-01 fix. The prosecutor's own attack-path analysis notes a live JDWP attach "allows bypassing any purely client-side check... because a debugger can single-step past or directly overwrite the result of any such check in memory": so no sensitive action (above all, money transfers) should rely solely on a client-side gate; pair the manifest fix with independent <strong>server-side</strong> re-verification of authentication/authorization state. <em>(Note: <code>resilience-anti-tamper-auditor</code> itself was skipped for this engagement for lack of code/running app, so this client-vs-server framing is this report's own synthesis of the prosecutor's reasoning, not a verbatim carry-forward of that specialist's notes field.)</em></p>
+    </div>
+  </details>
+
+  <h4 class="subhead">Static-only candidates not escalated to the panel (included here for completeness)</h4>
+  <p style="font-size:0.9rem;color:var(--ink-soft);">The two findings below carry Medium/High <code>severity_initial</code> ratings but were never sent through prosecutor/skeptic review in this engagement: a deliberate scoping choice for this demo (see Appendix C), not a quality judgment. Status shown is <code>Candidate</code>, not panel-reviewed <code>Potential</code>.</p>
+
+  <details class="finding">
+    <summary>
+      <span class="badge sev-high">High</span>
+      <span class="badge status-informational">Candidate</span>
+      AccountProvider exported with no permission, no path-permission, no URI scoping
+      <span class="finding-id">AND-MAN-004</span>
+    </summary>
+    <div class="body">
+      <dl>
+        <dt>Attacker model</dt><dd>other-app</dd>
+        <dt>MASVS</dt><dd>MASVS-PLATFORM-1, MASVS-STORAGE-1</dd>
+        <dt>Ref IDs</dt><dd>MAN-04, MAN-06</dd>
+      </dl>
+      <p><strong>Description:</strong> <code>.data.AccountProvider</code> is declared <code>android:exported="true"</code> with authority <code>com.vulnbankdemo.app.provider</code> and no child elements at all (<code>extracted/AndroidManifest.xml:35-38</code>): no read/write/permission attribute, no <code>&lt;path-permission&gt;</code>, no URI scoping.</p>
+      <p><strong>Attack path:</strong> Any installed app can issue a <code>ContentResolver</code> query/insert/update/delete against <code>content://com.vulnbankdemo.app.provider</code> with no permission held.</p>
+      <p><strong>Evidence:</strong> Static: <code>extracted/AndroidManifest.xml:L35-38</code>. Dynamic: <code>adb shell content query --uri content://com.vulnbankdemo.app.provider</code> returned <code>IllegalStateException: Could not find provider</code>, confirming the provider is absent on-device because the package is not installed.</p>
+      <p><strong>Why not Confirmed/Potential, what would upgrade it:</strong> Escalation to the adversarial panel to test the attacker-model/severity claims, plus the provider's actual implementation code (or an installed build) to determine what data is returned/mutated and whether raw-SQL injection via <code>selection</code>/<code>sortOrder</code> is possible.</p>
+      <p><strong>Remediation:</strong> Add <code>android:readPermission</code>/<code>writePermission</code> (or per-path <code>&lt;path-permission&gt;</code>) tied to a signature-level custom permission; set <code>exported="false"</code> if no external app needs this data; confirm parameterized queries once implementation code exists.</p>
+    </div>
+  </details>
+
+  <details class="finding">
+    <summary>
+      <span class="badge sev-medium">Medium</span>
+      <span class="badge status-informational">Candidate</span>
+      android:allowBackup="true" with no backup-content restriction
+      <span class="finding-id">AND-MAN-002</span>
+    </summary>
+    <div class="body">
+      <dl>
+        <dt>Attacker model</dt><dd>physical</dd>
+        <dt>MASVS</dt><dd>MASVS-STORAGE-2</dd>
+        <dt>Ref IDs</dt><dd>MAN-02</dd>
+      </dl>
+      <p><strong>Description:</strong> <code>&lt;application android:allowBackup="true" ...&gt;</code> with no <code>android:fullBackupContent</code> and no <code>android:dataExtractionRules</code> anywhere in the manifest (<code>extracted/AndroidManifest.xml:7-13</code>).</p>
+      <p><strong>Attack path:</strong> <code>adb backup</code>/cloud auto-backup extraction of the app's private data directory on a physically-accessible, unlocked, debugging-enabled device.</p>
+      <p><strong>Evidence:</strong> Static: <code>extracted/AndroidManifest.xml:L7-13</code>. Dynamic: <code>adb backup -noapk com.vulnbankdemo.app</code> against device <code>84f7a024</code> triggered the interactive backup-confirmation dialog, deliberately not blind-tapped through (package already confirmed absent; shared device with unrelated out-of-scope apps present); cleanly dismissed via <code>KEYCODE_BACK</code> with no backup produced and no data touched.</p>
+      <p><strong>Why not Confirmed/Potential, what would upgrade it:</strong> Escalation to the adversarial panel, plus confirmation from a storage/crypto review (skipped for this engagement, no implementation code exists) that session tokens or cached account data are actually persisted locally and unencrypted: the finding's own notes state severity would rise on that confirmation.</p>
+      <p><strong>Remediation:</strong> Add <code>android:fullBackupContent</code> (pre-API 31) or <code>android:dataExtractionRules</code> (API 31+) excluding sensitive data from backup, or set <code>allowBackup="false"</code> if there is no legitimate backup/restore use case.</p>
+    </div>
+  </details>
+</section>
+
+<section id="informational">
+  <h2>Informational / hardening observations</h2>
+  <div class="card">
+    <div class="appendix-item">
+      <strong>AND-MAN-005: No &lt;uses-sdk&gt; declared; min/targetSdkVersion undeclared <span class="badge sev-low">Low</span> <span class="finding-id">MAN-12</span></strong>
+      No <code>&lt;uses-sdk&gt;</code> element exists anywhere in the manifest, so SDK-version-gated platform defaults (cleartext-traffic, exported defaults, backup policy) cannot be assumed either way. Kept low-severity because this is a confirmed hand-authored fixture, not evidence of a real shipped build lacking these values. <strong>Fix:</strong> declare <code>minSdkVersion</code>/<code>targetSdkVersion</code> explicitly via <code>&lt;uses-sdk&gt;</code> (or verify the real <code>build.gradle</code> sets them); re-check if a genuine build artifact is ever supplied.
+    </div>
+    <div class="appendix-item">
+      <strong>AND-MAN-006: Exported-component inventory (IPC surface map) <span class="badge sev-info">Info</span> <span class="finding-id">MAN-04</span></strong>
+      Not an independently exploitable finding: a complete enumeration of all three declared components (<code>LoginActivity</code> benign/expected export; <code>TransferMoneyActivity</code> and <code>AccountProvider</code>, both covered individually above) logged so downstream specialists have the full surface map rather than re-deriving it. <strong>Fix:</strong> none required; any future specialist pass should consult this inventory rather than re-enumerating it.
+    </div>
+  </div>
+</section>
+
+<section id="appendix-a">
+  <h2>Appendix A: False positives / ruled out</h2>
+  <table>
+    <thead><tr><th>Finding</th><th>What was suspected</th><th>Why the refutation held</th></tr></thead>
+    <tbody>
+      <tr><td colspan="3">None identified. Both findings sent through the adversarial panel (AND-MAN-001, AND-MAN-003) stood: across four skeptic passes total (two independent instances per finding), none returned a well-evidenced "refuted" verdict. No finding in <code>findings/findings.jsonl</code> carries a <code>false-positive</code> status.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="appendix-b">
+  <h2>Appendix B: Attack surface inventory</h2>
+  <div class="card">
+    <p style="font-size:0.85rem;color:var(--ink-soft);"><em>Reproduced from <code>target-profile.md</code>'s "Attack surface inventory" section.</em></p>
+    <div class="appendix-item">
+      <strong>Exported components</strong>
+      All three declared components are the entirety of the manifest's <code>&lt;application&gt;</code> block; no <code>&lt;service&gt;</code>/<code>&lt;receiver&gt;</code> elements exist.
+      <table style="margin-top:8px;">
+        <thead><tr><th>Component</th><th>Type</th><th>Exported</th><th>Intent filter</th><th>Guard</th></tr></thead>
+        <tbody>
+          <tr><td><code>.ui.LoginActivity</code></td><td>Activity</td><td>true</td><td>MAIN/LAUNCHER</td><td>none</td></tr>
+          <tr><td><code>.ui.TransferMoneyActivity</code></td><td>Activity</td><td>true</td><td>VIEW/DEFAULT/BROWSABLE, scheme=vulnbank host=transfer</td><td>none</td></tr>
+          <tr><td><code>.data.AccountProvider</code></td><td>ContentProvider</td><td>true (authority com.vulnbankdemo.app.provider)</td><td>n/a</td><td>none, no path-permission, no grantUriPermissions restriction</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.88rem;margin-top:8px;"><code>LoginActivity</code> being exported is expected/required (the <code>LAUNCHER</code> activity) and is not itself a finding. <code>TransferMoneyActivity</code> and <code>AccountProvider</code> are covered as AND-MAN-003/004 above.</p>
+    </div>
+    <div class="appendix-item">
+      <strong>Custom URL schemes / App Links</strong>
+      Custom scheme <code>vulnbank://transfer</code> on <code>TransferMoneyActivity</code>, category BROWSABLE (reachable from a mobile browser). No Android App Links (no <code>autoVerify</code>, no <code>https</code> filter, no <code>assetlinks.json</code>). iOS Universal Links: not applicable.
+    </div>
+    <div class="appendix-item">
+      <strong>WebViews</strong>
+      None observed, treated as <strong>unknown, not "none"</strong>: no DEX/source exists to grep for <code>WebView</code> instantiation.
+    </div>
+    <div class="appendix-item">
+      <strong>Network endpoints</strong>
+      None observed in strings, treated as <strong>unknown, not "no endpoints"</strong>: no <code>res/</code>/<code>strings.xml</code>/<code>resources.arsc</code> exists. Only the <code>INTERNET</code> permission is available as a fact.
+    </div>
+    <div class="appendix-item">
+      <strong>Permissions / entitlements</strong>
+      <code>android.permission.INTERNET</code> is the only permission declared. No dangerous/runtime permissions requested. No custom <code>&lt;permission&gt;</code> defined anywhere: no permission infrastructure available even to apply. iOS entitlements: not applicable.
+    </div>
+    <div class="appendix-item">
+      <strong>Third-party SDKs</strong>
+      Undeterminable: no <code>build.gradle</code>, no dependency lockfile, no embedded <code>.jar</code>/<code>.aar</code>/<code>.so</code>, no SDK-characteristic manifest entries. Treated as zero evidence either way, not "no third-party SDKs."
+    </div>
+    <div class="appendix-item">
+      <strong>Versions</strong>
+      No <code>&lt;uses-sdk&gt;</code> element exists; min/targetSdkVersion undeclared and unknown (see AND-MAN-005). All three components set <code>exported</code> explicitly, so the API-17/31 default-export ambiguity doesn't bite for them, but other SDK-version-gated defaults should be treated as unknown.
+    </div>
+  </div>
+</section>
+
+<section id="appendix-c">
+  <h2>Appendix C: Methodology &amp; limitations</h2>
+  <div class="card">
+    <p><strong>Phase 2 (static) specialist coverage.</strong> <code>target-profile.md</code> named three specialists to run: <code>android-manifest-auditor</code> (full remit), <code>android-ipc-ui-auditor</code> (scoped to manifest-level exposure of the two unguarded exported components), and <code>deeplink-clipboard-auditor</code> (scoped to its DLK-01..08 sub-check only). <strong>All six findings in <code>findings/findings.jsonl</code> are attributed solely to <code>android-manifest-auditor</code></strong>: there is no record anywhere in this engagement of output from the other two recommended specialists; this report cannot determine whether they ran and found nothing to add, or did not run at all. The remaining ten specialists (<code>ios-plist-entitlements-auditor</code>, <code>ios-platform-attack-auditor</code>, <code>storage-crypto-auditor</code>, <code>taint-flow-analyst</code>, <code>webview-security-auditor</code>, <code>oauth-oidc-auditor</code>, <code>resilience-anti-tamper-auditor</code>, <code>network-backend-auditor</code>, <code>supply-chain-framework-auditor</code>, <code>business-logic-auditor</code>) were explicitly and deliberately skipped per <code>target-profile.md</code>, each because this fixture supplies only a plaintext manifest with no APK/AAB, DEX, source tree, or <code>build.gradle</code> for any of them to examine.</p>
+    <p><strong>Phase 3 (dynamic) coverage.</strong> A real, connected, authorized Android device (<code>84f7a024</code>, Xiaomi Redmi "sweetin", Android 11/SDK 30, production build) was genuinely available and used, not merely assumed present (<code>findings/dynamic-session-log.md</code>). However, dynamic confirmation of actual app behavior did not occur for any finding, because there is no installable build of VulnBank: every proposed dynamic command (<code>run-as</code>, deep-link <code>am start</code>, provider <code>content query</code>, <code>dumpsys package</code>, <code>adb backup</code>) was executed verbatim and failed in the same consistent way (package/provider/activity not found), confirming the "no installable artifact" premise rather than confirming or refuting any manifest-level exposure claim. Hooking, fuzzing, MITM, resilience-bypass, and biometric-gate testing were not attempted: no running app process exists for any of them to target. The device's presence should not be read as implying full dynamic coverage for this target.</p>
+    <p><strong>Phase 4 (adversarial panel) coverage.</strong> Only <strong>AND-MAN-001</strong> and <strong>AND-MAN-003</strong> were escalated to the full prosecutor/skeptic/orchestrator panel (<code>exploitation/AND-MAN-001.md</code>, <code>exploitation/AND-MAN-003.md</code>, two independent skeptic instances each). AND-MAN-002, AND-MAN-004, AND-MAN-005, and AND-MAN-006 were never escalated: a deliberate scoping choice for this demo, not an oversight; this report's fallback rule (use each finding's own <code>severity_initial</code>/<code>status</code> in place of a never-set <code>final_severity</code>) was applied to all four accordingly.</p>
+    <p><strong>Tools actually used.</strong> <code>adb</code> (Android Debug Bridge version 1.0.41, Version 35.0.2-12147458) was used directly against the connected device for every Phase 3 command above. <code>apktool</code>, <code>jadx</code>, and <code>aapt2</code> are present on the analysis machine's PATH but were not used, because the input artifact is a single plaintext, already-decoded <code>AndroidManifest.xml</code> with no binary AXML/DEX/compiled resources for them to operate on.</p>
+    <p><strong>Out of scope per <code>scope.md</code>.</strong> Everything beyond <code>AndroidManifest.xml</code> review, explicitly: "Out of scope: everything else, since no real code exists for this fixture."</p>
+    <p><strong>Known inconsistencies/gaps flagged during report assembly:</strong></p>
+    <ul>
+      <li><code>target-profile.md</code> recommended running <code>android-ipc-ui-auditor</code> and <code>deeplink-clipboard-auditor</code> alongside <code>android-manifest-auditor</code>, but no finding, transcript, or log anywhere in this engagement attributes output to either of those two specialists: whether they ran at all cannot be determined from the record.</li>
+      <li>The skeptic-1 verdict inside <code>exploitation/AND-MAN-001.md</code> states it independently confirmed the engagement directory contains a <code>findings/findings.jsonl.bak</code> file. No such file exists in the directory as supplied for this report-synthesis pass: flagged as a minor, unresolved discrepancy (most likely a since-removed working artifact) rather than silently treated as consistent.</li>
+      <li>Most importantly: this entire engagement is a synthetic, hand-authored fixture built specifically to exercise this skill's five-phase pipeline (per the fixture's own <code>README.md</code> and <code>scope.md</code>). It is not a real security assessment of a real, shipped application, and every finding above describes a condition that would matter <em>if</em> a real app ever shipped with this exact manifest, not a confirmed real-world incident.</li>
+    </ul>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  Generated by <strong>Mobile Security Skill</strong> · report-synthesizer, Phase 5 ·
+  <a href="https://github.com/harshdhamaniya/mobile-security-skill">github.com/harshdhamaniya/mobile-security-skill</a>
+</footer>
+
+</body>
+</html>

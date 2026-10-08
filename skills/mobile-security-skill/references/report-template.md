@@ -1,6 +1,8 @@
 # Final Report Template
 
-`report-synthesizer` writes `engagement-<slug>/report/final-report.md` using this exact skeleton. Fill every section; write "None identified" rather than deleting a heading.
+`report-synthesizer` writes two renderings of the same report: `engagement-<slug>/report/final-report.md` using this exact skeleton, and `engagement-<slug>/report/final-report.html` using the companion file `report-template.html` in this same directory. The HTML version is the primary deliverable, a well-formed, self-contained, styled document meant to actually be opened and read, not a markdown export. See `report-template.html` for its own structure and fill-in rules; the content requirements below apply equally to both.
+
+Fill every section; write "None identified" rather than deleting a heading.
 
 ```markdown
 # Mobile Application Security Assessment: <App Name> <version/build>
